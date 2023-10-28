@@ -17,7 +17,7 @@ def find_moon(img):
         contrast_value += 10
 
         if contrast_value > 255:
-            break
+            return []
     
     blurred = image
     return [int(n) for n in circles[0][0]]
@@ -59,12 +59,19 @@ def superpose(img1, img2):
             img2[i][j] = img1[i][j]
 
 def get_final_image(img):
+    global blurred
+
     #pre-processing
     greyscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
     blurred = cv2.GaussianBlur(greyscale, (5, 5), 1.4)
 
     #moon finding stuff
     moon_pos = find_moon(blurred)
+
+    #skip if no moon is found ==TODO==: replace by a popup
+    if len(moon_pos) == 0:
+        return []
+
     luminosity = get_luminosity(moon_pos, blurred)
     left = luminosity[0]
     right = luminosity[1]
@@ -92,14 +99,16 @@ if __name__ == "__main__":
     for f in files:
         initial = cv2.imread(f)
         global rect, blurred
-        cv2.namedWindow("out", cv2.WINDOW_NORMAL)
 
         out_img = get_final_image(initial)
+        if len(out_img) == 0:
+            continue
 
         #show img and save it
-        cv2.imshow("out", out_img)
+        cv2.namedWindow(f, cv2.WINDOW_NORMAL)
+        cv2.imshow(f, out_img)
         file = "".join(f.split(".")[:-1])+"_out."+f.split(".")[-1]
         print(file)
         cv2.imwrite(file, out_img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()                                                                                                    
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()                                                                                                    
