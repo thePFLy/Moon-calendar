@@ -80,14 +80,19 @@ def get_final_image(img):
     tmp_rect = cv2.resize(rect, (len(rect)//2, len(rect[0])//2)) 
     superpose(tmp_rect, img)
 
+    # text size
+    image_height = img.shape[0]
+    text_percentage = 10
+    text_size = int(image_height * text_percentage / 100)
+
     #construct output image
     cx, cy, r = moon_pos
-    cv2.line(img, (0,0), (0,len(tmp_rect)), (255, 0, 255), 2)
+    cv2.line(img, (0,0), (0, len(tmp_rect)), (255, 0, 255), 2)
     cv2.line(img, (len(tmp_rect)//2,0), (len(tmp_rect)//2,len(tmp_rect)), (255, 0, 255), 2)
     cv2.line(img, (len(tmp_rect),0), (len(tmp_rect),len(tmp_rect)), (255, 0, 255), 2)
     cv2.line(img, (0,0), (len(tmp_rect), 0), (255, 0, 255), 2)
-    cv2.line(img, (0,len(tmp_rect)), (len(tmp_rect), len(tmp_rect)), (255, 0, 255), 2)
-    cv2.putText(img, f'Day: {int(day)} L: {round(left*100,2)}% R: {round(right*100,2)}%', (10, len(tmp_rect) + 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 1, cv2.LINE_AA) 
+    cv2.line(img, (0, len(tmp_rect)), (len(tmp_rect), len(tmp_rect)), (255, 0, 255), 2)
+    cv2.putText(img, f'Day: {int(day)} L: {round(left*100,2)}% R: {round(right*100,2)}%', (10, len(tmp_rect) + text_size), cv2.FONT_HERSHEY_SIMPLEX, text_size / 100, (255, 0, 255), 1, cv2.LINE_AA)
     cv2.circle(img, (cx,cy), r, (255, 0, 255), 3)
 
     return img
