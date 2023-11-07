@@ -53,7 +53,7 @@ if __name__ == "__main__":
     cv2.ellipse(img, (moon_res//2,moon_res//2), (int((moon_res//2)*quarter_phase), moon_res//2), 0, 0, 360, secondary_color, -1)
     cv2.ellipse(img, (moon_res//2,moon_res//2), (moon_res//2, moon_res//2), half_phase_start, 0, 180, secondary_color, -1)
 
-    img = rotate(img, -g)
+    img = rotate(img, g)
 
     cv2.imshow("out", img)
     cv2.waitKey(0)
