@@ -77,7 +77,7 @@ def get_final_image(img):
     right = luminosity[1]
     day = get_lunar_day(left, right)
 
-    tmp_rect = cv2.resize(rect, (len(rect)//2, len(rect[0])//2)) 
+    tmp_rect = cv2.resize(rect, (int(len(rect)*0.75), int(len(rect[0])*0.75))) 
     superpose(tmp_rect, img)
 
     #construct output image
