@@ -1,0 +1,82 @@
+import numpy as np
+from math import dist
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+import cv2
+
+def sobel(img):
+    grad_x = cv2.Sobel(img, cv2.CV_16S, 1, 0, ksize=3, scale=1, delta=0, borderType=cv2.BORDER_DEFAULT)
+    grad_y = cv2.Sobel(img, cv2.CV_16S, 0, 1, ksize=3, scale=1, delta=0, borderType=cv2.BORDER_DEFAULT)
+    abs_grad_x = cv2.convertScaleAbs(grad_x)
+    abs_grad_y = cv2.convertScaleAbs(grad_y)
+    out = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+    threshold = cv2.adaptiveThreshold(out, 255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,size,0)
+    return threshold
+
+initial = cv2.imread("moons/moon21.jpg")
+greyscale = cv2.cvtColor(initial, cv2.COLOR_BGR2GRAY)
+blurred = cv2.GaussianBlur(greyscale, (7, 7), 0)
+size = min(initial.shape[0],initial.shape[1]) - 1 + (min(initial.shape[0],initial.shape[1])%2)
+binary = cv2.adaptiveThreshold(blurred, 255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,size,0)
+
+#clean artefacts
+kernel1 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+# kernel2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(int(size*0.01),int(size*0.01)))
+for i in range(10):
+    binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel1)
+    # binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel2)
+
+#edge detection
+kernel3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+edges_clean = sobel(binary)
+edges = cv2.dilate(edges_clean, kernel3, 1)
+
+out = []
+tmp = min(edges.shape[0],edges.shape[1])
+for i in range(tmp,int(tmp*0.05),-5):
+    #generate circle
+    circle = np.zeros((i, i), dtype=np.uint8)
+    cv2.circle(circle, (i//2,i//2), i//2, (255, 255, 255), 1)
+
+    #convolute
+    matchup = cv2.matchTemplate(edges, circle, cv2.TM_CCORR)
+    (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(matchup)
+    top_x = maxLoc[0]
+    top_y = maxLoc[1]
+    rect = edges[top_y:top_y+i, top_x:top_x+i]
+    if rect.shape != circle.shape:
+        continue
+    filt = cv2.bitwise_and(circle,rect)
+    lum = np.mean(filt)*100
+    out.append([top_x+(i//2), top_y+(i//2), i//2, int(lum)])
+
+out = np.array(out)
+mean_center = (int(np.mean(out[:,0])),int(np.mean(out[:,1])))
+
+peaks, _ = find_peaks(out[:,3], distance=50, height=np.mean(out[:,3])/2)
+# plt.plot(out[:,3], label="lum")
+# plt.plot(out[:,2], label="radius")
+# plt.plot(peaks, out[:,3][peaks], "x")
+# plt.legend()
+# plt.show()
+
+output = cv2.cvtColor(edges_clean, cv2.COLOR_GRAY2RGB)
+#output = initial
+
+data = out[peaks[0]]
+r = data[2]
+cx = data[0]
+cy = data[1]
+output = cv2.circle(output, (cx,cy), r, (255, 255, 0), 1)
+output = cv2.circle(output, (cx,cy), 2, (255, 255, 0), -1)
+
+for i in range(len(out)):
+    color = (255, 0, 255)
+    if i == peaks[0]:
+        color = (255, 255, 0)
+    output = cv2.line(output, (i,len(output)), (i,len(output)-(out[:,3][i]//8)), color, 1)
+
+cv2.namedWindow("out", cv2.WINDOW_NORMAL)
+cv2.imshow("out", output)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
