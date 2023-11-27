@@ -18,7 +18,8 @@ def sobel(img):
     abs_grad_x = cv2.convertScaleAbs(grad_x)
     abs_grad_y = cv2.convertScaleAbs(grad_y)
     wheighted = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
-    binary = cv2.adaptiveThreshold(wheighted, 255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,size,0)
+    binary = cv2.adaptiveThreshold(wheighted, 255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,size//2,0)
+    binary = cv2.equalizeHist(binary)
     return binary
 
 def find_circle(img):
