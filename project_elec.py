@@ -25,7 +25,7 @@ def sobel(img):
 def find_circle(img):
     global edges
     circle_max = min(img.shape[0],img.shape[1])
-    circle_min = int(circle_max*0.05)
+    circle_min = int(circle_max*0.025)
 
     #edge detection
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
@@ -62,14 +62,9 @@ def find_circle(img):
     #peaks, _ = find_peaks(luminosities, prominence=1.5, distance=50)
     peaks = sort_array(luminosities)
 
-    global circles
+    global circles #required for graph display
     circles = candidates
 
-    #the biggest local max is our circle
-    data = candidates[peaks[0]]
-    r = data[2]
-    cx = data[0]
-    cy = data[1]
     return candidates[peaks]
 
 def get_luminosity(circle, img):
