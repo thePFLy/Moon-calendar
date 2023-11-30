@@ -21,6 +21,10 @@ def preprocessing(img):
     return binary
 
 def sobel(img):
+    """
+    return the binarized sobel image
+    sobel is done in both direction then weighted
+    """
     size = min(img.shape[0],img.shape[1]) - 1 + (min(img.shape[0],img.shape[1])%2)
     grad_x = cv2.Sobel(img, cv2.CV_16S, 1, 0, ksize=3, scale=1, delta=0, borderType=cv2.BORDER_DEFAULT)
     grad_y = cv2.Sobel(img, cv2.CV_16S, 0, 1, ksize=3, scale=1, delta=0, borderType=cv2.BORDER_DEFAULT)
@@ -76,6 +80,9 @@ def find_circle(img):
     return candidates[peaks]
 
 def sort_array(arr):
+    """
+    return an array of local maximums, sorted on the 'spikiness' of the points
+    """
     result = []
     for i in range(3, len(arr) - 3):
         if all(arr[i] > x for x in arr[i-3:i]) and all(arr[i] > x for x in arr[i+1:i+4]):
