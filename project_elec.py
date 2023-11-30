@@ -115,9 +115,9 @@ def get_luminosity(circle, img):
 
 def get_lunar_day(left, right):
     if right > left:
-        day = (14.75*((left+right)/2))+14.75
+        day = 14.75*((left+right)/2)
     else:
-        day = 14.75*(1-((left+right)/2))
+        day = 14.75*(1-((left+right)/2))+14.75
     return day
 
 def superpose(img1, img2):
