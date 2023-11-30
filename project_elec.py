@@ -2,6 +2,7 @@ import numpy as np
 from tkinter import *
 from tkinter import Tk
 from tkinter.filedialog import askopenfilenames
+from tkinter import messagebox
 import cv2
 
 def preprocessing(img):
@@ -165,20 +166,23 @@ if __name__ == "__main__":
     files = askopenfilenames()
 
     for f in files:
-        initial = cv2.imread(f)
-        size = max(len(initial),len(initial[0]))
-        if (size > 2000):
-            scale = 1-((size-2000)/size)
-            initial = cv2.resize(initial, (int(len(initial[0])*scale), int(len(initial)*scale)))
-        binary = preprocessing(initial)
-        data = find_circle(binary)
-        if len(data) > 0:
-            left, right = get_luminosity(data[0], binary)
-            day = get_lunar_day(left, right)
-            output = output_img(initial, circles, data[0], day, left, right)
-        else:
-            output = output_img(initial, circles)
-        cv2.namedWindow(f, cv2.WINDOW_NORMAL)
-        cv2.imshow(f, output)
+        try:
+            initial = cv2.imread(f)
+            size = max(len(initial),len(initial[0]))
+            if (size > 2000):
+                scale = 1-((size-2000)/size)
+                initial = cv2.resize(initial, (int(len(initial[0])*scale), int(len(initial)*scale)))
+            binary = preprocessing(initial)
+            data = find_circle(binary)
+            if len(data) > 0:
+                left, right = get_luminosity(data[0], binary)
+                day = get_lunar_day(left, right)
+                output = output_img(initial, circles, data[0], day, left, right)
+            else:
+                output = output_img(initial, circles)
+            cv2.namedWindow(f, cv2.WINDOW_NORMAL)
+            cv2.imshow(f, output)
+        except TypeError:
+            messagebox.showinfo("Not an Image", f"{f} is not an image")
     cv2.waitKey(0)
     cv2.destroyAllWindows()
