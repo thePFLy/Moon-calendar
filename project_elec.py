@@ -16,10 +16,16 @@ def preprocessing(img):
     kernel1 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
     kernel2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(int(size*0.01),int(size*0.01)))
     for i in range(5):
-        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel1)
-        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel1)
+        morph = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel1)
+        morph = cv2.morphologyEx(morph, cv2.MORPH_CLOSE, kernel1)
 
-    return binary
+    #===TEST===
+    # cv2.namedWindow("grey", cv2.WINDOW_NORMAL)
+    # cv2.imshow("grey", greyscale)
+    # cv2.namedWindow("morph", cv2.WINDOW_NORMAL)
+    # cv2.imshow("morph", morph)
+
+    return morph
 
 def sobel(img):
     """
@@ -33,6 +39,11 @@ def sobel(img):
     abs_grad_y = cv2.convertScaleAbs(grad_y)
     wheighted = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
     binary = cv2.adaptiveThreshold(wheighted, 255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,size,0)
+
+    #===TEST===
+    # cv2.namedWindow("edges", cv2.WINDOW_NORMAL)
+    # cv2.imshow("edges", binary)
+
     return binary
 
 def find_circle(img):
@@ -77,6 +88,20 @@ def find_circle(img):
 
     global circles #required for graph display
     circles = candidates
+
+    #===TEST===
+    # circle = initial.copy()
+    # for i in range(len(candidates)):
+    #     color = (200, 0, 200)
+    #     if i in peaks:
+    #         color = (255, 255, 0)
+    #     if i == peaks[0]:
+    #         cv2.circle(circle, (candidates[i][0],candidates[i][1]), candidates[i][2], (0,255,0), 3)
+    #     else:
+    #         cv2.circle(circle, (candidates[i][0],candidates[i][1]), candidates[i][2], color, 1)
+    #     cv2.circle(circle, (candidates[i][0],candidates[i][1]), 2, color, -1)
+    # cv2.namedWindow("circles", cv2.WINDOW_NORMAL)
+    # cv2.imshow("circles", circle)
 
     return candidates[peaks]
 
